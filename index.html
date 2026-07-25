@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medication Interactions - Johnny White</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: #667eea;
+            color: white;
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:hover {
+            background: #fafafa;
+        }
+        
+        input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+        
+        .med-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .med-dose {
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .med-purpose {
+            color: #888;
+            font-size: 13px;
+        }
+        
+        .interactions-section {
+            grid-column: 1 / -1;
+        }
+        
+        .interactions-empty {
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .interaction-item {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        
+        .interaction-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .interaction-detail {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .warning {
+            color: #d32f2f;
+            font-weight: 500;
+        }
+        
+        .info {
+            color: #1976d2;
+        }
+        
+        .caution {
+            color: #f57c00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Medication Reference</h1>
+            <p>Johnny White - Check medications to view interactions</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="card">
+                <div class="card-header">Medications</div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;"></th>
+                                <th>Medication</th>
+                                <th>Dose & Frequency</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card interactions-section">
+                <div class="card-header">Drug Interactions</div>
+                <div class="card-body" id="interactionsCard">
+                    <div class="interactions-empty">Select medications to view interactions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const medications = [
+            {
+                id: 'omeprazole',
+                name: 'Omeprazole',
+                dose: '20 mg',
+                frequency: 'Once daily',
+                purpose: 'Acid reducer (GERD)'
+            },
+            {
+                id: 'metoprolol',
+                name: 'Metoprolol Succinate',
+                dose: 'Granules',
+                frequency: 'Once daily',
+                purpose: 'Beta-blocker - heart rate/BP control'
+            },
+            {
+                id: 'brilinta',
+                name: 'Brilinta (Ticagrelor)',
+                dose: '90 mg',
+                frequency: 'Once daily',
+                purpose: 'Antiplatelet - heart protection'
+            },
+            {
+                id: 'jardiance',
+                name: 'Jardiance (Empagliflozin)',
+                dose: '10 mg',
+                frequency: 'Once daily',
+                purpose: 'Type 2 diabetes control'
+            },
+            {
+                id: 'furosemide',
+                name: 'Furosemide',
+                dose: 'TAB',
+                frequency: 'Once daily',
+                purpose: 'Diuretic - fluid/BP management'
+            },
+            {
+                id: 'rosuvastatin',
+                name: 'Rosuvastatin',
+                dose: 'TAB',
+                frequency: 'Once daily',
+                purpose: 'Statin - cholesterol control'
+            },
+            {
+                id: 'eliquis',
+                name: 'Eliquis (Apixaban)',
+                dose: '5 mg',
+                frequency: 'Twice daily',
+                purpose: 'Anticoagulant - stroke prevention'
+            }
+        ];
+        
+        const interactions = {
+            'metoprolol-brilinta': {
+                title: 'Metoprolol + Brilinta',
+                detail: '<span class="caution">⚠️ Additive cardiac effects</span> - Both affect heart rate/rhythm. Monitor for excessive bradycardia (slow heart rate), dizziness, or fatigue. May need dose adjustment.',
+                severity: 'caution'
+            },
+            'metoprolol-furosemide': {
+                title: 'Metoprolol + Furosemide',
+                detail: '<span class="caution">⚠️ Enhanced BP/HR lowering</span> - Both lower blood pressure and heart rate. Monitor for dizziness, weakness, or fainting. Check BP regularly.',
+                severity: 'caution'
+            },
+            'metoprolol-jardiance': {
+                title: 'Metoprolol + Jardiance',
+                detail: '<span class="info">ℹ️ Monitor blood pressure</span> - No major interaction but both affect cardiovascular system. Regular BP monitoring recommended.',
+                severity: 'info'
+            },
+            'eliquis-brilinta': {
+                title: 'Eliquis + Brilinta',
+                detail: '<span class="warning">⚠️ Increased bleeding risk</span> - Both are antiplatelet/anticoagulant. Monitor for bleeding signs (bruising, nosebleeds, blood in urine).',
+                severity: 'warning'
+            },
+            'omeprazole-brilinta': {
+                title: 'Omeprazole + Brilinta',
+                detail: '<span class="warning">⚠️ Reduced Brilinta effectiveness</span> - Omeprazole may decrease Brilinta blood levels. Discuss alternative acid reducer with prescriber if possible.',
+                severity: 'warning'
+            },
+            'furosemide-jardiance': {
+                title: 'Furosemide + Jardiance',
+                detail: '<span class="warning">⚠️ Dehydration & kidney stress risk</span> - Both increase urination. Ensure adequate hydration and monitor kidney function regularly.',
+                severity: 'warning'
+            },
+            'rosuvastatin-furosemide': {
+                title: 'Rosuvastatin + Furosemide',
+                detail: '<span class="caution">⚠️ Monitor for muscle pain</span> - Diuretics may increase statin concentration. Report unexplained muscle weakness/pain.',
+                severity: 'caution'
+            },
+            'eliquis-rosuvastatin': {
+                title: 'Eliquis + Rosuvastatin',
+                detail: '<span class="info">ℹ️ Monitor liver function</span> - No major interaction but both require periodic monitoring. Routine labs are appropriate.',
+                severity: 'info'
+            },
+            'brilinta-eliquis': {
+                title: 'Brilinta + Eliquis',
+                detail: '<span class="warning">⚠️ Increased bleeding risk</span> - See Eliquis + Brilinta above.',
+                severity: 'warning'
+            }
+        };
+        
+        function initTable() {
+            const tbody = document.getElementById('medTable');
+            medications.forEach(med => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="checkbox" data-id="${med.id}" onchange="updateInteractions()"></td>
+                    <td><div class="med-name">${med.name}</div></td>
+                    <td><div class="med-dose">${med.dose}<br><small>${med.frequency}</small></div></td>
+                    <td><div class="med-purpose">${med.purpose}</div></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function updateInteractions() {
+            const checked = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.dataset.id)
+                .sort();
+            
+            const card = document.getElementById('interactionsCard');
+            
+            if (checked.length < 2) {
+                card.innerHTML = '<div class="interactions-empty">Select 2 or more medications to view interactions</div>';
+                return;
+            }
+            
+            const relevantInteractions = [];
+            
+            // Check all pairs
+            for (let i = 0; i < checked.length; i++) {
+                for (let j = i + 1; j < checked.length; j++) {
+                    const key1 = checked[i] + '-' + checked[j];
+                    const key2 = checked[j] + '-' + checked[i];
+                    
+                    if (interactions[key1]) {
+                        relevantInteractions.push(interactions[key1]);
+                    } else if (interactions[key2]) {
+                        relevantInteractions.push(interactions[key2]);
+                    } else {
+                        relevantInteractions.push({
+                            title: `${getMedName(checked[i])} + ${getMedName(checked[j])}`,
+                            detail: '<span class="info">ℹ️ No significant interaction</span> - These medications can be used together safely.',
+                            severity: 'info'
+                        });
+                    }
+                }
+            }
+            
+            if (relevantInteractions.length === 0) {
+                card.innerHTML = '<div class="interactions-empty">No interactions found</div>';
+                return;
+            }
+            
+            card.innerHTML = relevantInteractions
+                .map(inter => `
+                    <div class="interaction-item">
+                        <div class="interaction-title">${inter.title}</div>
+                        <div class="interaction-detail">${inter.detail}</div>
+                    </div>
+                `)
+                .join('');
+        }
+        
+        function getMedName(id) {
+            return medications.find(m => m.id === id)?.name || id;
+        }
+        
+        // Initialize
+        initTable();
+    </script>
+</body>
+</html>
