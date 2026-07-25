@@ -1,3 +1,5 @@
+medication-interactions.html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -430,7 +432,7 @@
             grid.innerHTML = medications.map(med => `
                 <div class="drug-tile" id="tile-${med.id}" onclick="toggleDrug('${med.id}')">
                     <div class="drug-image" id="imgbox-${med.id}">
-                        <img src="${med.id}.png" alt="${med.name}" onerror="handleImageError('${med.id}')">
+                        <img src="${imgSrc(med.id, 0)}" data-ext-index="0" alt="${med.name}" onerror="handleImageError('${med.id}', this)">
                     </div>
                     <div class="drug-name">${med.name}</div>
                     <div class="drug-dose">${med.dose}</div>
@@ -438,10 +440,22 @@
             `).join('');
         }
 
-        function handleImageError(id) {
-            const box = document.getElementById('imgbox-' + id);
-            if (box) {
-                box.innerHTML = '<span class="no-image">No image</span>';
+        const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg'];
+
+        function imgSrc(id, extIndex) {
+            return `${id}.${IMAGE_EXTENSIONS[extIndex]}`;
+        }
+
+        function handleImageError(id, imgEl) {
+            const nextIndex = parseInt(imgEl.dataset.extIndex || '0', 10) + 1;
+            if (nextIndex < IMAGE_EXTENSIONS.length) {
+                imgEl.dataset.extIndex = nextIndex;
+                imgEl.src = imgSrc(id, nextIndex);
+            } else {
+                const box = document.getElementById('imgbox-' + id);
+                if (box) {
+                    box.innerHTML = '<span class="no-image">No image</span>';
+                }
             }
         }
 
@@ -460,11 +474,17 @@
         }
 
         function descThumb(med) {
-            return `<img src="${med.id}.png" alt="${med.name}" onerror="descThumbError(this)">`;
+            return `<img src="${imgSrc(med.id, 0)}" data-ext-index="0" alt="${med.name}" onerror="descThumbError('${med.id}', this)">`;
         }
 
-        function descThumbError(imgEl) {
-            imgEl.parentElement.innerHTML = '<span class="no-image">No image</span>';
+        function descThumbError(id, imgEl) {
+            const nextIndex = parseInt(imgEl.dataset.extIndex || '0', 10) + 1;
+            if (nextIndex < IMAGE_EXTENSIONS.length) {
+                imgEl.dataset.extIndex = nextIndex;
+                imgEl.src = imgSrc(id, nextIndex);
+            } else {
+                imgEl.parentElement.innerHTML = '<span class="no-image">No image</span>';
+            }
         }
 
         function render() {
