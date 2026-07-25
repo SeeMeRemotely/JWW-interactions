@@ -3,373 +3,564 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medication Interactions - Johnny White</title>
+    <title>Meds Reference</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
+
         .container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
         }
-        
+
         .header {
-            background: white;
-            padding: 24px;
+            background: #111;
+            padding: 14px 20px;
             border-radius: 12px;
             margin-bottom: 24px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+            border: 2px solid #ff6a00;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
         }
-        
+
         .header h1 {
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 28px;
+            color: #ff6a00;
+            font-size: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            white-space: nowrap;
         }
-        
+
         .header p {
-            color: #666;
-            font-size: 14px;
+            color: #ccc;
+            font-size: 13px;
         }
-        
-        .main-content {
+
+        /* 3-column drug tile grid */
+        .drug-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
         }
-        
-        @media (max-width: 900px) {
-            .main-content {
+
+        @media (max-width: 700px) {
+            .drug-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 420px) {
+            .drug-grid {
                 grid-template-columns: 1fr;
             }
         }
-        
-        .card {
-            background: white;
+
+        .drug-tile {
+            background: #1a1a1a;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+            padding: 16px;
+            cursor: pointer;
+            text-align: center;
+            border: 3px solid #333;
+            transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+            user-select: none;
+        }
+
+        .drug-tile:hover {
+            transform: translateY(-2px);
+            border-color: #ff6a00;
+            box-shadow: 0 6px 14px rgba(255,106,0,0.25);
+        }
+
+        .drug-tile.selected {
+            background: #ff6a00;
+            border-color: #ff6a00;
+            box-shadow: 0 0 0 4px rgba(255,106,0,0.3), 0 6px 14px rgba(255,106,0,0.5);
+            transform: translateY(-2px);
+        }
+
+        .drug-image {
+            width: 100%;
+            height: 110px;
+            background: #0d0d0d;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
+            margin-bottom: 10px;
         }
-        
-        .card-header {
-            background: #667eea;
-            color: white;
-            padding: 16px 20px;
+
+        .drug-tile.selected .drug-image {
+            background: #1a1a1a;
+        }
+
+        .drug-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .drug-image .no-image {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .drug-tile.selected .drug-image .no-image {
+            color: #ffd9b3;
+        }
+
+        .drug-name {
+            font-weight: 700;
+            color: #eee;
+            font-size: 14px;
+            line-height: 1.3;
+        }
+
+        .drug-tile.selected .drug-name {
+            color: #000;
+        }
+
+        .drug-dose {
+            color: #999;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .drug-tile.selected .drug-dose {
+            color: #1a1a1a;
             font-weight: 600;
-            font-size: 16px;
         }
-        
+
+        /* Cards */
+        .card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+            overflow: hidden;
+            margin-bottom: 24px;
+            border: 2px solid #333;
+        }
+
+        .card-header {
+            background: #ff6a00;
+            color: #000;
+            padding: 16px 20px;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
         .card-body {
             padding: 20px;
         }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
+
+        .desc-item {
+            display: flex;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
         }
-        
-        th {
-            background: #f5f5f5;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #333;
-            border-bottom: 2px solid #e0e0e0;
+
+        .desc-item:last-child {
+            border-bottom: none;
         }
-        
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #e0e0e0;
+
+        .desc-thumb {
+            width: 64px;
+            height: 64px;
+            flex-shrink: 0;
+            background: #0d0d0d;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
-        
-        tr:hover {
-            background: #fafafa;
+
+        .desc-thumb img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
-        
-        input[type="checkbox"] {
-            cursor: pointer;
-            width: 18px;
-            height: 18px;
-            accent-color: #667eea;
-        }
-        
-        .med-name {
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .med-dose {
+
+        .desc-thumb .no-image {
             color: #666;
-            font-size: 13px;
+            font-size: 10px;
         }
-        
-        .med-purpose {
-            color: #888;
-            font-size: 13px;
+
+        .desc-text .desc-name {
+            font-weight: 700;
+            color: #ff6a00;
+            margin-bottom: 4px;
         }
-        
-        .interactions-section {
-            grid-column: 1 / -1;
-        }
-        
-        .interactions-empty {
+
+        .desc-text .desc-dose {
             color: #999;
-            font-style: italic;
-            text-align: center;
-            padding: 40px 20px;
+            font-size: 13px;
+            margin-bottom: 4px;
         }
-        
+
+        .desc-text .desc-purpose {
+            color: #ddd;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
         .interaction-item {
             margin-bottom: 16px;
             padding: 12px;
-            background: #f9f9f9;
-            border-left: 4px solid #667eea;
+            background: #0d0d0d;
+            border-left: 4px solid #ff6a00;
             border-radius: 4px;
         }
-        
+
+        .interaction-item:last-child {
+            margin-bottom: 0;
+        }
+
         .interaction-title {
-            font-weight: 600;
-            color: #333;
+            font-weight: 700;
+            color: #ff6a00;
             margin-bottom: 6px;
             font-size: 14px;
         }
-        
+
         .interaction-detail {
-            color: #666;
+            color: #ccc;
             font-size: 13px;
             line-height: 1.5;
         }
-        
+
         .warning {
-            color: #d32f2f;
-            font-weight: 500;
+            color: #ff3b3b;
+            font-weight: 600;
         }
-        
+
         .info {
-            color: #1976d2;
+            color: #4da6ff;
         }
-        
+
         .caution {
-            color: #f57c00;
+            color: #ffb300;
+        }
+
+        .question-box {
+            margin-top: 12px;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px dashed #ff6a00;
+            border-radius: 6px;
+        }
+
+        .question-label {
+            color: #ff6a00;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .question-text {
+            color: #eee;
+            font-size: 13px;
+            line-height: 1.5;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .copy-btn {
+            background: #ff6a00;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .copy-btn:hover {
+            background: #ff8c33;
+        }
+
+        .copy-btn:active {
+            transform: scale(0.97);
+        }
+
+        .copy-btn.copied {
+            background: #2ecc71;
+            color: #000;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Medication Reference</h1>
-            <p>Johnny White - Check medications to view interactions</p>
+            <h1>Meds Reference</h1>
+            <p>Tap a medication to see what it is. Tap 2 or more to see interactions.</p>
         </div>
-        
-        <div class="main-content">
-            <div class="card">
-                <div class="card-header">Medications</div>
-                <div class="card-body">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;"></th>
-                                <th>Medication</th>
-                                <th>Dose & Frequency</th>
-                                <th>Purpose</th>
-                            </tr>
-                        </thead>
-                        <tbody id="medTable">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div class="card interactions-section">
-                <div class="card-header">Drug Interactions</div>
-                <div class="card-body" id="interactionsCard">
-                    <div class="interactions-empty">Select medications to view interactions</div>
-                </div>
-            </div>
+
+        <div class="drug-grid" id="drugGrid"></div>
+
+        <div class="card" id="descriptionCard" style="display: none;">
+            <div class="card-header">Medication Details</div>
+            <div class="card-body" id="descriptionBody"></div>
+        </div>
+
+        <div class="card" id="interactionsCardWrap" style="display: none;">
+            <div class="card-header">Drug Interactions</div>
+            <div class="card-body" id="interactionsCard"></div>
         </div>
     </div>
-    
+
     <script>
         const medications = [
             {
                 id: 'omeprazole',
                 name: 'Omeprazole',
-                dose: '20 mg',
-                frequency: 'Once daily',
-                purpose: 'Acid reducer (GERD)'
+                dose: '20 mg - Once daily',
+                purpose: 'Acid reducer used to treat frequent heartburn (GERD). Reduces stomach acid production.'
             },
             {
                 id: 'metoprolol',
                 name: 'Metoprolol Succinate',
-                dose: 'Granules',
-                frequency: 'Once daily',
-                purpose: 'Beta-blocker - heart rate/BP control'
+                dose: 'Once daily',
+                purpose: 'Beta-blocker used to control heart rate and blood pressure, and to protect the heart.'
             },
             {
                 id: 'brilinta',
                 name: 'Brilinta (Ticagrelor)',
-                dose: '90 mg',
-                frequency: 'Once daily',
-                purpose: 'Antiplatelet - heart protection'
+                dose: '90 mg - Once daily',
+                purpose: 'Antiplatelet medication that helps prevent blood clots, typically after a heart attack or stent.'
             },
             {
                 id: 'jardiance',
                 name: 'Jardiance (Empagliflozin)',
-                dose: '10 mg',
-                frequency: 'Once daily',
-                purpose: 'Type 2 diabetes control'
+                dose: '10 mg - Once daily',
+                purpose: 'SGLT2 inhibitor used to manage type 2 diabetes by helping the kidneys remove sugar through urine.'
             },
             {
                 id: 'furosemide',
                 name: 'Furosemide',
-                dose: 'TAB',
-                frequency: 'Once daily',
-                purpose: 'Diuretic - fluid/BP management'
+                dose: '40 mg - Once daily',
+                purpose: 'Loop diuretic ("water pill") used to reduce fluid buildup and help control blood pressure.'
             },
             {
                 id: 'rosuvastatin',
                 name: 'Rosuvastatin',
-                dose: 'TAB',
-                frequency: 'Once daily',
-                purpose: 'Statin - cholesterol control'
+                dose: 'Once daily',
+                purpose: 'Statin medication used to lower cholesterol and reduce risk of heart disease.'
             },
             {
                 id: 'eliquis',
                 name: 'Eliquis (Apixaban)',
-                dose: '5 mg',
-                frequency: 'Twice daily',
-                purpose: 'Anticoagulant - stroke prevention'
+                dose: '5 mg - Twice daily',
+                purpose: 'Anticoagulant (blood thinner) used to reduce the risk of stroke and blood clots.'
             }
         ];
-        
+
         const interactions = {
             'metoprolol-brilinta': {
                 title: 'Metoprolol + Brilinta',
                 detail: '<span class="caution">⚠️ Additive cardiac effects</span> - Both affect heart rate/rhythm. Monitor for excessive bradycardia (slow heart rate), dizziness, or fatigue. May need dose adjustment.',
-                severity: 'caution'
+                question: 'I take both metoprolol and Brilinta (ticagrelor). Since both can slow my heart rate, should I be watching for any specific symptoms, and do I need more frequent heart rate or blood pressure checks?'
             },
             'metoprolol-furosemide': {
                 title: 'Metoprolol + Furosemide',
                 detail: '<span class="caution">⚠️ Enhanced BP/HR lowering</span> - Both lower blood pressure and heart rate. Monitor for dizziness, weakness, or fainting. Check BP regularly.',
-                severity: 'caution'
+                question: 'I take both metoprolol and furosemide, which can both lower my blood pressure and heart rate. What blood pressure or heart rate readings should prompt me to call you, and how often should I be checking at home?'
             },
             'metoprolol-jardiance': {
                 title: 'Metoprolol + Jardiance',
                 detail: '<span class="info">ℹ️ Monitor blood pressure</span> - No major interaction but both affect cardiovascular system. Regular BP monitoring recommended.',
-                severity: 'info'
+                question: 'I take metoprolol and Jardiance together. Is there anything specific I should monitor since both affect my cardiovascular system?'
             },
             'eliquis-brilinta': {
                 title: 'Eliquis + Brilinta',
                 detail: '<span class="warning">⚠️ Increased bleeding risk</span> - Both are antiplatelet/anticoagulant. Monitor for bleeding signs (bruising, nosebleeds, blood in urine).',
-                severity: 'warning'
+                question: 'I am taking both Eliquis and Brilinta, which both increase bleeding risk. What signs of bleeding should I watch for at home, and is this combination something you intended long-term or should it be reviewed?'
             },
             'omeprazole-brilinta': {
                 title: 'Omeprazole + Brilinta',
                 detail: '<span class="warning">⚠️ Reduced Brilinta effectiveness</span> - Omeprazole may decrease Brilinta blood levels. Discuss alternative acid reducer with prescriber if possible.',
-                severity: 'warning'
+                question: 'I take omeprazole and Brilinta together. I have read that omeprazole may reduce how well Brilinta works. Should I switch to a different acid reducer, or is this combination still safe for me?'
             },
             'furosemide-jardiance': {
                 title: 'Furosemide + Jardiance',
                 detail: '<span class="warning">⚠️ Dehydration & kidney stress risk</span> - Both increase urination. Ensure adequate hydration and monitor kidney function regularly.',
-                severity: 'warning'
+                question: 'I take both furosemide and Jardiance, which both increase urination. How much fluid should I be drinking, and how often should my kidney function be checked?'
             },
             'rosuvastatin-furosemide': {
                 title: 'Rosuvastatin + Furosemide',
                 detail: '<span class="caution">⚠️ Monitor for muscle pain</span> - Diuretics may increase statin concentration. Report unexplained muscle weakness/pain.',
-                severity: 'caution'
+                question: 'I take rosuvastatin and furosemide together. What level of muscle soreness or weakness would be a reason to contact you rather than wait for my next visit?'
             },
             'eliquis-rosuvastatin': {
                 title: 'Eliquis + Rosuvastatin',
                 detail: '<span class="info">ℹ️ Monitor liver function</span> - No major interaction but both require periodic monitoring. Routine labs are appropriate.',
-                severity: 'info'
-            },
-            'brilinta-eliquis': {
-                title: 'Brilinta + Eliquis',
-                detail: '<span class="warning">⚠️ Increased bleeding risk</span> - See Eliquis + Brilinta above.',
-                severity: 'warning'
+                question: 'I take Eliquis and rosuvastatin together. How often should my liver function and kidney function be checked given this combination?'
             }
         };
-        
-        function initTable() {
-            const tbody = document.getElementById('medTable');
-            medications.forEach(med => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><input type="checkbox" data-id="${med.id}" onchange="updateInteractions()"></td>
-                    <td><div class="med-name">${med.name}</div></td>
-                    <td><div class="med-dose">${med.dose}<br><small>${med.frequency}</small></div></td>
-                    <td><div class="med-purpose">${med.purpose}</div></td>
-                `;
-                tbody.appendChild(row);
-            });
+
+        const selected = new Set();
+
+        function initGrid() {
+            const grid = document.getElementById('drugGrid');
+            grid.innerHTML = medications.map(med => `
+                <div class="drug-tile" id="tile-${med.id}" onclick="toggleDrug('${med.id}')">
+                    <div class="drug-image" id="imgbox-${med.id}">
+                        <img src="${med.id}.png" alt="${med.name}" onerror="handleImageError('${med.id}')">
+                    </div>
+                    <div class="drug-name">${med.name}</div>
+                    <div class="drug-dose">${med.dose}</div>
+                </div>
+            `).join('');
         }
-        
-        function updateInteractions() {
-            const checked = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-                .map(cb => cb.dataset.id)
-                .sort();
-            
-            const card = document.getElementById('interactionsCard');
-            
-            if (checked.length < 2) {
-                card.innerHTML = '<div class="interactions-empty">Select 2 or more medications to view interactions</div>';
+
+        function handleImageError(id) {
+            const box = document.getElementById('imgbox-' + id);
+            if (box) {
+                box.innerHTML = '<span class="no-image">No image</span>';
+            }
+        }
+
+        function toggleDrug(id) {
+            if (selected.has(id)) {
+                selected.delete(id);
+            } else {
+                selected.add(id);
+            }
+            document.getElementById('tile-' + id).classList.toggle('selected');
+            render();
+        }
+
+        function getMed(id) {
+            return medications.find(m => m.id === id);
+        }
+
+        function descThumb(med) {
+            return `<img src="${med.id}.png" alt="${med.name}" onerror="descThumbError(this)">`;
+        }
+
+        function descThumbError(imgEl) {
+            imgEl.parentElement.innerHTML = '<span class="no-image">No image</span>';
+        }
+
+        function render() {
+            const ids = Array.from(selected).sort();
+            const descCard = document.getElementById('descriptionCard');
+            const descBody = document.getElementById('descriptionBody');
+            const interWrap = document.getElementById('interactionsCardWrap');
+            const interCard = document.getElementById('interactionsCard');
+
+            // Description card
+            if (ids.length === 0) {
+                descCard.style.display = 'none';
+            } else {
+                descCard.style.display = 'block';
+                descBody.innerHTML = ids.map(id => {
+                    const med = getMed(id);
+                    return `
+                        <div class="desc-item">
+                            <div class="desc-thumb">${descThumb(med)}</div>
+                            <div class="desc-text">
+                                <div class="desc-name">${med.name}</div>
+                                <div class="desc-dose">${med.dose}</div>
+                                <div class="desc-purpose">${med.purpose}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Interactions card
+            if (ids.length < 2) {
+                interWrap.style.display = 'none';
+                interCard.innerHTML = '';
                 return;
             }
-            
-            const relevantInteractions = [];
-            
-            // Check all pairs
-            for (let i = 0; i < checked.length; i++) {
-                for (let j = i + 1; j < checked.length; j++) {
-                    const key1 = checked[i] + '-' + checked[j];
-                    const key2 = checked[j] + '-' + checked[i];
-                    
+
+            interWrap.style.display = 'block';
+            const results = [];
+            for (let i = 0; i < ids.length; i++) {
+                for (let j = i + 1; j < ids.length; j++) {
+                    const key1 = ids[i] + '-' + ids[j];
+                    const key2 = ids[j] + '-' + ids[i];
                     if (interactions[key1]) {
-                        relevantInteractions.push(interactions[key1]);
+                        results.push(interactions[key1]);
                     } else if (interactions[key2]) {
-                        relevantInteractions.push(interactions[key2]);
+                        results.push(interactions[key2]);
                     } else {
-                        relevantInteractions.push({
-                            title: `${getMedName(checked[i])} + ${getMedName(checked[j])}`,
-                            detail: '<span class="info">ℹ️ No significant interaction</span> - These medications can be used together safely.',
-                            severity: 'info'
+                        results.push({
+                            title: `${getMed(ids[i]).name} + ${getMed(ids[j]).name}`,
+                            detail: '<span class="info">ℹ️ No significant interaction noted</span> - These medications can typically be used together.',
+                            question: null
                         });
                     }
                 }
             }
-            
-            if (relevantInteractions.length === 0) {
-                card.innerHTML = '<div class="interactions-empty">No interactions found</div>';
-                return;
-            }
-            
-            card.innerHTML = relevantInteractions
-                .map(inter => `
-                    <div class="interaction-item">
-                        <div class="interaction-title">${inter.title}</div>
-                        <div class="interaction-detail">${inter.detail}</div>
-                    </div>
-                `)
-                .join('');
+
+            interCard.innerHTML = results.map((inter, idx) => `
+                <div class="interaction-item">
+                    <div class="interaction-title">${inter.title}</div>
+                    <div class="interaction-detail">${inter.detail}</div>
+                    ${inter.question ? `
+                        <div class="question-box">
+                            <div class="question-label">Suggested question for the patient portal:</div>
+                            <div class="question-text" id="q-${idx}">${inter.question}</div>
+                            <button class="copy-btn" onclick="copyQuestion('q-${idx}', this)">Copy Question</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
         }
-        
-        function getMedName(id) {
-            return medications.find(m => m.id === id)?.name || id;
+
+        function copyQuestion(elId, btn) {
+            const text = document.getElementById(elId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = original;
+                    btn.classList.remove('copied');
+                }, 1500);
+            }).catch(() => {
+                // fallback for older browsers
+                const temp = document.createElement('textarea');
+                temp.value = text;
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                document.body.removeChild(temp);
+                btn.textContent = 'Copied!';
+                setTimeout(() => { btn.textContent = 'Copy Question'; }, 1500);
+            });
         }
-        
-        // Initialize
-        initTable();
+
+        initGrid();
     </script>
 </body>
 </html>
+
